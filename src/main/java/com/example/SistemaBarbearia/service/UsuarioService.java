@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.SistemaBarbearia.repository.AgendamentoRepository;
 import com.example.SistemaBarbearia.repository.UsuarioRepository;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional
-@AllArgsConstructor // Gera um construtor com todos os campos final
+@AllArgsConstructor
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
@@ -18,12 +20,16 @@ public class UsuarioService {
 
     public Usuario criarUsuario(Usuario novoUsuario) {
 
-        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(novoUsuario.getEmail());
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(novoUsuario.getEmail()); //Optional é responsável por evitar erro de Null Pointer Exception, que ocorre ao tentar usar um objeto que é null
 
         if (usuarioExistente.isPresent()) {
             throw new IllegalArgumentException("Email já registrado");
         }
         return usuarioRepository.save(novoUsuario);
+    }
+
+    public List<Usuario> listarTodosUsuarios() {
+        return usuarioRepository.findAll();
     }
 
     public Usuario buscarUsuarioPorEmail(String email) {

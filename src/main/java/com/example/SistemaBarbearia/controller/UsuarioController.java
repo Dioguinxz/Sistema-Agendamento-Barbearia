@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import com.example.SistemaBarbearia.service.UsuarioService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/usuarios")
 @AllArgsConstructor
@@ -23,6 +25,16 @@ public class UsuarioController {
     @ResponseStatus(HttpStatus.CREATED) // Retorna status 201 Created
     public Usuario criarUsuario(@RequestBody Usuario usuario) {
         return usuarioService.criarUsuario(usuario);
+    }
+
+    /**
+     * Endpoint para listar todos os usuários.
+     * Mapeado para o verbo HTTP GET na URL base.
+     * @return Uma lista de todos os usuários cadastrados.
+     */
+    @GetMapping
+    public List<Usuario> listarUsuarios() {
+        return usuarioService.listarTodosUsuarios();
     }
 
     /**
