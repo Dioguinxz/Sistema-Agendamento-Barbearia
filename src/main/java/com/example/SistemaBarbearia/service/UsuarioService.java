@@ -33,26 +33,13 @@ public class UsuarioService {
     }
 
     public Usuario buscarUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalStateException("Usuário não encontrado!")
-        );
-    }
-
-    @Transactional
-    public void excluirUsuarioPorEmail(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalStateException("Usuário não encontrado para exclusão!")
-        );
-        usuarioRepository.delete(usuario);
+        return usuarioRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("Usuário não encontrado!"));
     }
 
     public Usuario editarUsuario(String id, Usuario usuarioComNovosDados) {
-        Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException("Usuário não encontrado"));
+        Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
 
-        if (usuarioComNovosDados.getEmail() != null && !usuarioComNovosDados.getEmail().isBlank()
-                && !usuarioComNovosDados.getEmail().equals(usuarioExistente.getEmail())) {
-
+        if (usuarioComNovosDados.getEmail() != null && !usuarioComNovosDados.getEmail().isBlank() && !usuarioComNovosDados.getEmail().equals(usuarioExistente.getEmail())) {
             if (usuarioRepository.findByEmail(usuarioComNovosDados.getEmail()).isPresent()) {
                 throw new IllegalArgumentException("Email já registrado");
             }
@@ -62,12 +49,15 @@ public class UsuarioService {
         Optional.ofNullable(usuarioComNovosDados.getNome()).ifPresent(usuarioExistente::setNome);
         Optional.ofNullable(usuarioComNovosDados.getTelefone()).ifPresent(usuarioExistente::setTelefone);
 
-
-
         if (usuarioComNovosDados.getSenha() != null && !usuarioComNovosDados.getSenha().isBlank()) {
             usuarioExistente.setSenha(usuarioComNovosDados.getSenha());
         }
-
         return usuarioRepository.save(usuarioExistente);
+    }
+
+    @Transactional
+    public void excluirUsuarioPorEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("Usuário não encontrado para exclusão!"));
+        usuarioRepository.delete(usuario);
     }
 }
