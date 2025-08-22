@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 public class Agendamento {
 
     @Id
-    private ObjectId id;
-    private int usuarioId;
-    private int barbeiroId;
+    private String id;
+    private String usuarioId;
+    private String barbeiroId;
     private TipoServico tipoServico;
     private LocalDateTime horario;
     private StatusAgendamento status;
