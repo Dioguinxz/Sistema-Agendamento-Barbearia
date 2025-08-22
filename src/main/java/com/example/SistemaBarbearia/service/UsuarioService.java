@@ -1,11 +1,11 @@
-package service;
+package com.example.SistemaBarbearia.service;
 
-import entity.Usuario;
+import com.example.SistemaBarbearia.entity.Usuario;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import repository.AgendamentoRepository;
-import repository.UsuarioRepository;
+import com.example.SistemaBarbearia.repository.AgendamentoRepository;
+import com.example.SistemaBarbearia.repository.UsuarioRepository;
 import java.util.Optional;
 
 @Service

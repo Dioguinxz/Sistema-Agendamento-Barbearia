@@ -1,10 +1,10 @@
-package controller;
+package com.example.SistemaBarbearia.controller;
 
-import entity.Usuario;
+import com.example.SistemaBarbearia.entity.Usuario;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import service.UsuarioService;
+import com.example.SistemaBarbearia.service.UsuarioService;
 
 @RestController
 @RequestMapping("/api/usuarios")

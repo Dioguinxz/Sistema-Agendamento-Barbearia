@@ -1,4 +1,4 @@
-package entity;
+package com.example.SistemaBarbearia.entity;
 
 public enum TipoUsuario {
     CLIENTE,

@@ -1,6 +1,6 @@
-package repository;
+package com.example.SistemaBarbearia.repository;
 
-import entity.Agendamento;
+import com.example.SistemaBarbearia.entity.Agendamento;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
