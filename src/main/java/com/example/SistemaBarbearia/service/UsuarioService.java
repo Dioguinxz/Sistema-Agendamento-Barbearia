@@ -1,6 +1,7 @@
 package com.example.SistemaBarbearia.service;
 
 import com.example.SistemaBarbearia.entity.Usuario;
+import com.example.SistemaBarbearia.exceptions.UsuarioRegistradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ public class UsuarioService {
         Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(novoUsuario.getEmail()); //Optional é responsável por evitar erro de Null Pointer Exception, que ocorre ao tentar usar um objeto que é null
 
         if (usuarioExistente.isPresent()) {
-            throw new IllegalArgumentException("Email já registrado");
+            throw new UsuarioRegistradoException();
         }
         return usuarioRepository.save(novoUsuario);
     }
