@@ -20,11 +20,10 @@ public class UsuarioService {
     private final AgendamentoRepository agendamentoRepository;
 
     public Usuario criarUsuario(Usuario novoUsuario) {
-
         Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(novoUsuario.getEmail()); //Optional é responsável por evitar erro de Null Pointer Exception, que ocorre ao tentar usar um objeto que é null
 
         if (usuarioExistente.isPresent()) {
-            throw new UsuarioRegistradoException();
+            throw new UsuarioRegistradoException(novoUsuario.getEmail());
         }
         return usuarioRepository.save(novoUsuario);
     }
