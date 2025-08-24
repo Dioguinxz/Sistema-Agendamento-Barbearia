@@ -1,6 +1,7 @@
 package com.example.SistemaBarbearia.service;
 
 import com.example.SistemaBarbearia.entity.Usuario;
+import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoEmailException;
 import com.example.SistemaBarbearia.exceptions.UsuarioRegistradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class UsuarioService {
     }
 
     public Usuario buscarUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("Usuário não encontrado!"));
+        return usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioNaoEncontradoEmailException(email));
     }
 
     public Usuario editarUsuario(String id, Usuario usuarioComNovosDados) {
