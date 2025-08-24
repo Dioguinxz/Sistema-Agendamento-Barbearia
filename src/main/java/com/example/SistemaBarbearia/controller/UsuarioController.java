@@ -67,7 +67,7 @@ public class UsuarioController {
      * @return Resposta sem conteúdo e status 204 No Content.
      */
     @DeleteMapping("/{email}")
-    @ResponseStatus(HttpStatus.NO_CONTENT) // Retorna status 204 No Content
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void excluirUsuarioPorEmail(@PathVariable String email) {
         usuarioService.excluirUsuarioPorEmail(email);
     }

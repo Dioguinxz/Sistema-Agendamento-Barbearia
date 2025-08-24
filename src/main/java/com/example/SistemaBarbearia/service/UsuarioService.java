@@ -59,7 +59,7 @@ public class UsuarioService {
 
     @Transactional
     public void excluirUsuarioPorEmail(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("Usuário não encontrado para exclusão!"));
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioNaoEncontradoEmailException(email));
         usuarioRepository.delete(usuario);
     }
 }
