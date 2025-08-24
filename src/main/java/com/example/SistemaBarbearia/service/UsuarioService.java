@@ -43,7 +43,7 @@ public class UsuarioService {
 
         if (usuarioComNovosDados.getEmail() != null && !usuarioComNovosDados.getEmail().isBlank() && !usuarioComNovosDados.getEmail().equals(usuarioExistente.getEmail())) {
             if (usuarioRepository.findByEmail(usuarioComNovosDados.getEmail()).isPresent()) {
-                throw new IllegalArgumentException("Email já registrado");
+                throw new UsuarioRegistradoException(usuarioComNovosDados.getEmail());
             }
             usuarioExistente.setEmail(usuarioComNovosDados.getEmail());
         }
