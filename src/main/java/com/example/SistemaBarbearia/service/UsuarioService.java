@@ -2,6 +2,7 @@ package com.example.SistemaBarbearia.service;
 
 import com.example.SistemaBarbearia.entity.Usuario;
 import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoEmailException;
+import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoIdException;
 import com.example.SistemaBarbearia.exceptions.UsuarioRegistradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class UsuarioService {
     }
 
     public Usuario editarUsuario(String id, Usuario usuarioComNovosDados) {
-        Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
+        Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoIdException(id));
 
         if (usuarioComNovosDados.getEmail() != null && !usuarioComNovosDados.getEmail().isBlank() && !usuarioComNovosDados.getEmail().equals(usuarioExistente.getEmail())) {
             if (usuarioRepository.findByEmail(usuarioComNovosDados.getEmail()).isPresent()) {
