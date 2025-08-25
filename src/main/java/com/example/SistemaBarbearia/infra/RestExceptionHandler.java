@@ -1,8 +1,9 @@
 package com.example.SistemaBarbearia.infra;
 
+import com.example.SistemaBarbearia.exceptions.UsuarioComTelefoneRegistradoException;
 import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoEmailException;
 import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoIdException;
-import com.example.SistemaBarbearia.exceptions.UsuarioRegistradoException;
+import com.example.SistemaBarbearia.exceptions.UsuarioComEmailRegistradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,8 +13,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(UsuarioRegistradoException.class)
-    private ResponseEntity<RestErrorMessage> usuarioRegistradoHandler(UsuarioRegistradoException exception) {
+    @ExceptionHandler(UsuarioComEmailRegistradoException.class)
+    private ResponseEntity<RestErrorMessage> usuarioEmailRegistradoHandler(UsuarioComEmailRegistradoException exception) {
+        RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.CONFLICT, exception.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(mensagemTratada);
+    }
+
+    @ExceptionHandler(UsuarioComTelefoneRegistradoException.class)
+    private ResponseEntity<RestErrorMessage> usuarioTelefoneRegistradoHandler(UsuarioComTelefoneRegistradoException exception) {
         RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.CONFLICT, exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(mensagemTratada);
     }

@@ -1,9 +1,10 @@
 package com.example.SistemaBarbearia.service;
 
 import com.example.SistemaBarbearia.entity.Usuario;
+import com.example.SistemaBarbearia.exceptions.UsuarioComTelefoneRegistradoException;
 import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoEmailException;
 import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoIdException;
-import com.example.SistemaBarbearia.exceptions.UsuarioRegistradoException;
+import com.example.SistemaBarbearia.exceptions.UsuarioComEmailRegistradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +23,17 @@ public class UsuarioService {
     private final AgendamentoRepository agendamentoRepository;
 
     public Usuario criarUsuario(Usuario novoUsuario) {
-        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(novoUsuario.getEmail()); //Optional é responsável por evitar erro de Null Pointer Exception, que ocorre ao tentar usar um objeto que é null
+        Optional<Usuario> usuarioComEmailExistente = usuarioRepository.findByEmail(novoUsuario.getEmail()); //Optional é responsável por evitar erro de Null Pointer Exception, que ocorre ao tentar usar um objeto que é null
+        Optional<Usuario> usuarioComTelefoneExistente = usuarioRepository.findByTelefone(novoUsuario.getTelefone());
 
-        if (usuarioExistente.isPresent()) {
-            throw new UsuarioRegistradoException(novoUsuario.getEmail());
+        if (usuarioComEmailExistente.isPresent()) {
+            throw new UsuarioComEmailRegistradoException(novoUsuario.getEmail());
         }
+
+        if (usuarioComTelefoneExistente.isPresent()) {
+            throw new UsuarioComTelefoneRegistradoException(novoUsuario.getTelefone());
+        }
+
         return usuarioRepository.save(novoUsuario);
     }
 
@@ -43,7 +50,7 @@ public class UsuarioService {
 
         if (usuarioComNovosDados.getEmail() != null && !usuarioComNovosDados.getEmail().isBlank() && !usuarioComNovosDados.getEmail().equals(usuarioExistente.getEmail())) {
             if (usuarioRepository.findByEmail(usuarioComNovosDados.getEmail()).isPresent()) {
-                throw new UsuarioRegistradoException(usuarioComNovosDados.getEmail());
+                throw new UsuarioComEmailRegistradoException(usuarioComNovosDados.getEmail());
             }
             usuarioExistente.setEmail(usuarioComNovosDados.getEmail());
         }
