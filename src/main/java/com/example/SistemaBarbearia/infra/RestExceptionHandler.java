@@ -36,7 +36,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UsuarioNaoAlteraTipoException.class)
     private ResponseEntity<RestErrorMessage> usuarioNaoAlteraTipoHandler(UsuarioNaoAlteraTipoException exception) {
-        RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.BAD_REQUEST,exception.getMessage());
+        RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemTratada);
     }
 
