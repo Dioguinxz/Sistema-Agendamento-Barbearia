@@ -1,10 +1,7 @@
 package com.example.SistemaBarbearia.service;
 
 import com.example.SistemaBarbearia.entity.Usuario;
-import com.example.SistemaBarbearia.exceptions.UsuarioComTelefoneRegistradoException;
-import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoEmailException;
-import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoIdException;
-import com.example.SistemaBarbearia.exceptions.UsuarioComEmailRegistradoException;
+import com.example.SistemaBarbearia.exceptions.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +46,7 @@ public class UsuarioService {
         Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoIdException(id));
 
         if (usuarioComNovosDados.getTipo() != null && !usuarioComNovosDados.getTipo().equals(usuarioExistente.getTipo())) {
-            throw new IllegalArgumentException("O tipo de usuário (role) não pode ser alterado.");
+            throw new UsuarioNaoAlteraTipoException();
         }
 
         if (usuarioComNovosDados.getEmail() != null && !usuarioComNovosDados.getEmail().isBlank() && !usuarioComNovosDados.getEmail().equals(usuarioExistente.getEmail())) {

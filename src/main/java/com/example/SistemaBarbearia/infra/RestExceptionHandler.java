@@ -1,9 +1,6 @@
 package com.example.SistemaBarbearia.infra;
 
-import com.example.SistemaBarbearia.exceptions.UsuarioComTelefoneRegistradoException;
-import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoEmailException;
-import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoIdException;
-import com.example.SistemaBarbearia.exceptions.UsuarioComEmailRegistradoException;
+import com.example.SistemaBarbearia.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -35,6 +32,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     private ResponseEntity<RestErrorMessage> usuarioNaoEncontradoIdHandler(UsuarioNaoEncontradoIdException exception) {
         RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.NOT_FOUND, exception.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensagemTratada);
+    }
+
+    @ExceptionHandler(UsuarioNaoAlteraTipoException.class)
+    private ResponseEntity<RestErrorMessage> usuarioNaoAlteraTipoHandler(UsuarioNaoAlteraTipoException exception) {
+        RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.BAD_REQUEST,exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemTratada);
     }
 
 }
