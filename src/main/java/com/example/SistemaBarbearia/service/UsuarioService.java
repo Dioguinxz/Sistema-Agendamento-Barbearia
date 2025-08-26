@@ -48,6 +48,10 @@ public class UsuarioService {
     public Usuario editarUsuario(String id, Usuario usuarioComNovosDados) {
         Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoIdException(id));
 
+        if (usuarioComNovosDados.getTipo() != null && !usuarioComNovosDados.getTipo().equals(usuarioExistente.getTipo())) {
+            throw new IllegalArgumentException("O tipo de usuário (role) não pode ser alterado.");
+        }
+
         if (usuarioComNovosDados.getEmail() != null && !usuarioComNovosDados.getEmail().isBlank() && !usuarioComNovosDados.getEmail().equals(usuarioExistente.getEmail())) {
             if (usuarioRepository.findByEmail(usuarioComNovosDados.getEmail()).isPresent()) {
                 throw new UsuarioComEmailRegistradoException(usuarioComNovosDados.getEmail());
@@ -55,8 +59,13 @@ public class UsuarioService {
             usuarioExistente.setEmail(usuarioComNovosDados.getEmail());
         }
 
+        if (usuarioComNovosDados.getTelefone() != null && !usuarioComNovosDados.getTelefone().isBlank() && !usuarioComNovosDados.getTelefone().equals(usuarioExistente.getTelefone())) {
+            if (usuarioRepository.findByTelefone(usuarioComNovosDados.getTelefone()).isPresent()) {
+                throw new UsuarioComTelefoneRegistradoException(usuarioComNovosDados.getTelefone());
+            }
+        }
+
         Optional.ofNullable(usuarioComNovosDados.getNome()).ifPresent(usuarioExistente::setNome);
-        Optional.ofNullable(usuarioComNovosDados.getTelefone()).ifPresent(usuarioExistente::setTelefone);
 
         if (usuarioComNovosDados.getSenha() != null && !usuarioComNovosDados.getSenha().isBlank()) {
             usuarioExistente.setSenha(usuarioComNovosDados.getSenha());
