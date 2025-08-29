@@ -4,7 +4,7 @@
 API RESTful em desenvolvimento com **Java e Spring Boot** para gerenciar agendamentos em uma barbearia.
 
 ---
-## Funcionalidades
+## Principais Funcionalidades
 
 ### Cliente
 * Cadastro e Login (com JWT)
