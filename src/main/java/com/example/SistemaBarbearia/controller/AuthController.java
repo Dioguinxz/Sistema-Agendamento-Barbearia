@@ -4,6 +4,8 @@ import com.example.SistemaBarbearia.dto.AuthenticationDTO;
 import com.example.SistemaBarbearia.dto.EmailResponseDTO;
 import com.example.SistemaBarbearia.dto.RegisterDTO;
 import com.example.SistemaBarbearia.entity.Usuario;
+import com.example.SistemaBarbearia.exceptions.UsuarioComEmailRegistradoException;
+import com.example.SistemaBarbearia.exceptions.UsuarioComTelefoneRegistradoException;
 import com.example.SistemaBarbearia.repository.UsuarioRepository;
 import com.example.SistemaBarbearia.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +49,11 @@ public class AuthController {
     public ResponseEntity register(@RequestBody @Validated RegisterDTO data) {
 
         if (this.usuarioRepository.findByEmail(data.email()).isPresent()) {
-            return ResponseEntity.badRequest().body("Este e-mail já está em uso.");
+            throw new UsuarioComEmailRegistradoException(data.email());
         }
 
         if (this.usuarioRepository.findByTelefone(data.telefone()).isPresent()) {
-            return ResponseEntity.badRequest().body("Este telefone já está em uso.");
+            throw new UsuarioComTelefoneRegistradoException(data.telefone());
 
         }
 

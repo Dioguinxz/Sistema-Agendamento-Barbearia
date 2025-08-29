@@ -3,6 +3,7 @@ package com.example.SistemaBarbearia.infra;
 import com.example.SistemaBarbearia.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -39,5 +40,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemTratada);
     }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<RestErrorMessage> handleBadCredentials(BadCredentialsException ex) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        String mensagem = "E-mail ou senha inválidos.";
+        RestErrorMessage errorResponse = new RestErrorMessage(status, mensagem);
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
 
 }
