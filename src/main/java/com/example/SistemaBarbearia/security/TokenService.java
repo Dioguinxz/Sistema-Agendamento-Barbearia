@@ -1,4 +1,4 @@
-package com.example.SistemaBarbearia.Security;
+package com.example.SistemaBarbearia.security;
 
 
 import com.auth0.jwt.JWT;

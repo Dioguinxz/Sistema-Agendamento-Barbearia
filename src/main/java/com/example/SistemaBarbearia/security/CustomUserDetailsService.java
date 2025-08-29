@@ -1,4 +1,4 @@
-package com.example.SistemaBarbearia.Security;
+package com.example.SistemaBarbearia.security;
 
 import com.example.SistemaBarbearia.exceptions.UsuarioNaoEncontradoEmailException;
 import com.example.SistemaBarbearia.repository.UsuarioRepository;

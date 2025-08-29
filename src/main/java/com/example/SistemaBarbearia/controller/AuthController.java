@@ -1,9 +1,11 @@
 package com.example.SistemaBarbearia.controller;
 
 import com.example.SistemaBarbearia.dto.AuthenticationDTO;
+import com.example.SistemaBarbearia.dto.EmailResponseDTO;
 import com.example.SistemaBarbearia.dto.RegisterDTO;
 import com.example.SistemaBarbearia.entity.Usuario;
 import com.example.SistemaBarbearia.repository.UsuarioRepository;
+import com.example.SistemaBarbearia.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,12 +30,17 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Validated AuthenticationDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        return ResponseEntity.ok().build();
+        var token = tokenService.gerarToken((Usuario) auth.getPrincipal());
+
+        return ResponseEntity.ok(new EmailResponseDTO(token));
     }
 
     @PostMapping("/register")
