@@ -9,9 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Document(collection = "agendamentos")
-@Data // Injeta Getters e Setters
-@AllArgsConstructor // Gera um construtor com todos os campos
-@NoArgsConstructor // Gera um construtor sem argumentos
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Agendamento {
 
     @Id
@@ -21,8 +21,5 @@ public class Agendamento {
     private TipoServico tipoServico;
     private LocalDateTime horario;
     private StatusAgendamento status;
-
-
-
 
 }
