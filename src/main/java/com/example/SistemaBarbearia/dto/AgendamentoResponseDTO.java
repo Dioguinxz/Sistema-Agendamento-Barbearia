@@ -10,6 +10,8 @@ public record AgendamentoResponseDTO(
         String id,
         String usuarioId,
         String barbeiroId,
+        String nomeCliente,
+        String nomeBarbeiro,
         TipoServico tipoServico,
         LocalDateTime horario,
         StatusAgendamento status
@@ -20,6 +22,8 @@ public record AgendamentoResponseDTO(
                 agendamento.getId(),
                 agendamento.getUsuarioId(),
                 agendamento.getBarbeiroId(),
+                agendamento.getNomeCliente(),
+                agendamento.getNomeBarbeiro(),
                 agendamento.getTipoServico(),
                 agendamento.getHorario(),
                 agendamento.getStatus()

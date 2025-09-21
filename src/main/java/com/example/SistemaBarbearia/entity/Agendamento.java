@@ -18,6 +18,8 @@ public class Agendamento {
     private String id;
     private String usuarioId;
     private String barbeiroId;
+    private String nomeCliente;
+    private String nomeBarbeiro;
     private TipoServico tipoServico;
     private LocalDateTime horario;
     private StatusAgendamento status;
