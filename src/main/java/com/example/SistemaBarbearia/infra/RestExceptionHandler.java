@@ -40,6 +40,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemTratada);
     }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<RestErrorMessage> handleBadCredentials(BadCredentialsException ex) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
@@ -48,5 +49,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(status).body(errorResponse);
     }
 
+    @ExceptionHandler(AgendamentoException.class)
+    public ResponseEntity<RestErrorMessage> handleAgendamentoException(AgendamentoException exception) {
+        RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemTratada);
 
+    }
 }
