@@ -21,17 +21,13 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             HttpServletResponse response,
             AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-        // Cria o seu objeto de erro personalizado
         RestErrorMessage errorResponse = new RestErrorMessage(
                 HttpStatus.FORBIDDEN,
                 "Acesso negado. Você não tem permissão para acessar este recurso."
         );
 
-        // Configura a resposta HTTP
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-        // Escreve o JSON da sua mensagem de erro no corpo da resposta
         new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
     }
 }
