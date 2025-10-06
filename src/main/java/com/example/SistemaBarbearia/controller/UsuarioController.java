@@ -3,6 +3,7 @@ package com.example.SistemaBarbearia.controller;
 import com.example.SistemaBarbearia.entity.Usuario;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.SistemaBarbearia.service.UsuarioService;
 
@@ -33,6 +34,7 @@ public class UsuarioController {
      * @return Uma lista de todos os usuários cadastrados.
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('BARBEIRO')")
     public List<Usuario> listarUsuarios() {
         return usuarioService.listarTodosUsuarios();
     }
@@ -44,6 +46,7 @@ public class UsuarioController {
      * @return O objeto Usuario encontrado e status 200 OK.
      */
     @GetMapping(params = "email")
+    @PreAuthorize("hasAuthority('BARBEIRO')")
     public Usuario buscarUsuarioPorEmail(@RequestParam String email) {
         return usuarioService.buscarUsuarioPorEmail(email);
     }
