@@ -1,5 +1,6 @@
 package com.example.SistemaBarbearia.service;
 
+import com.example.SistemaBarbearia.dto.UsuarioResponseDTO;
 import com.example.SistemaBarbearia.entity.Usuario;
 import com.example.SistemaBarbearia.exceptions.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import com.example.SistemaBarbearia.repository.UsuarioRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -34,8 +36,11 @@ public class UsuarioService {
         return usuarioRepository.save(novoUsuario);
     }
 
-    public List<Usuario> listarTodosUsuarios() {
-        return usuarioRepository.findAll();
+    public List<UsuarioResponseDTO> listarTodos() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(UsuarioResponseDTO::new) // Converte cada Usuario em um UsuarioResponseDTO
+                .collect(Collectors.toList());
     }
 
     public Usuario buscarUsuarioPorEmail(String email) {

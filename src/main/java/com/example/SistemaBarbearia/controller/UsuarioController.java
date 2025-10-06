@@ -1,8 +1,10 @@
 package com.example.SistemaBarbearia.controller;
 
+import com.example.SistemaBarbearia.dto.UsuarioResponseDTO;
 import com.example.SistemaBarbearia.entity.Usuario;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.SistemaBarbearia.service.UsuarioService;
@@ -23,7 +25,7 @@ public class UsuarioController {
      * @return ResponseEntity com o Usuario criado e status 201 Created.
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) // Retorna status 201 Created
+    @ResponseStatus(HttpStatus.CREATED)
     public Usuario criarUsuario(@RequestBody Usuario usuario) {
         return usuarioService.criarUsuario(usuario);
     }
@@ -35,8 +37,9 @@ public class UsuarioController {
      */
     @GetMapping
     @PreAuthorize("hasAuthority('BARBEIRO')")
-    public List<Usuario> listarUsuarios() {
-        return usuarioService.listarTodosUsuarios();
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodosUsuarios() {
+        List<UsuarioResponseDTO> usuarios = usuarioService.listarTodos();
+        return ResponseEntity.ok(usuarios);
     }
 
     /**
