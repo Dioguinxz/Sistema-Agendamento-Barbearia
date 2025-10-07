@@ -240,6 +240,33 @@ public class AgendamentoService {
         agendamento.setStatus(StatusAgendamento.CANCELADO);
         agendamentoRepository.save(agendamento);
     }
+    /**
+     * Lógica para um BARBEIRO marcar um agendamento da sua agenda como CONCLUÍDO.
+     *
+     * @param agendamentoId   O ID do agendamento a ser concluído.
+     * @param barbeiroLogado  O usuário BARBEIRO autenticado.
+     */
+    public void marcarComoConcluido(String agendamentoId, Usuario barbeiroLogado) {
+        Agendamento agendamento = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(() -> new AgendamentoException("Agendamento não encontrado com o ID: " + agendamentoId));
 
+        // barbeiro só pode concluir agendamentos da sua própria agenda
+        if (!agendamento.getBarbeiroId().equals(barbeiroLogado.getId())) {
+            throw new AgendamentoException("Acesso negado. Este agendamento não pertence à sua agenda.");
+        }
+
+        // agendamento só pode ser concluído se seu status for AGENDADO
+        if (agendamento.getStatus() != StatusAgendamento.AGENDADO) {
+            throw new AgendamentoException("Apenas agendamentos com status 'AGENDADO' podem ser concluídos.");
+        }
+
+        // não permite concluir um agendamento que ainda não aconteceu
+        if (agendamento.getHorario().isAfter(LocalDateTime.now())) {
+            throw new AgendamentoException("Este agendamento ainda não pode ser marcado como concluído, pois seu horário é no futuro.");
+        }
+
+        agendamento.setStatus(StatusAgendamento.CONCLUIDO);
+        agendamentoRepository.save(agendamento);
+    }
 
 }

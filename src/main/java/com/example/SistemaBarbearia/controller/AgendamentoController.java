@@ -82,4 +82,22 @@ public class AgendamentoController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Endpoint para um BARBEIRO marcar um agendamento como CONCLUÍDO.
+     * Acessível apenas por usuários com a permissão 'BARBEIRO'.
+     *
+     * @param id             O ID do agendamento a ser concluído.
+     * @param barbeiroLogado O usuário BARBEIRO autenticado, injetado pelo Spring Security.
+     * @return ResponseEntity com status 204 No Content para indicar sucesso.
+     */
+    @PatchMapping("/{id}/concluir")
+    @PreAuthorize("hasAuthority('BARBEIRO')")
+    public ResponseEntity<Void> concluirAgendamento(
+            @PathVariable String id,
+            @AuthenticationPrincipal Usuario barbeiroLogado) {
+
+        agendamentoService.marcarComoConcluido(id, barbeiroLogado);
+        return ResponseEntity.noContent().build();
+    }
+
 }
