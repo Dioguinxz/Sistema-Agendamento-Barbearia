@@ -5,6 +5,7 @@ import com.example.SistemaBarbearia.dto.AgendamentoResponseDTO;
 import com.example.SistemaBarbearia.dto.AgendamentoUpdateDTO;
 import com.example.SistemaBarbearia.entity.*;
 import com.example.SistemaBarbearia.exceptions.AgendamentoException;
+import com.example.SistemaBarbearia.exceptions.CancelamentoForaDoPrazoException;
 import com.example.SistemaBarbearia.repository.AgendamentoRepository;
 import com.example.SistemaBarbearia.repository.UsuarioRepository;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -184,6 +186,59 @@ public class AgendamentoService {
         Agendamento agendamentoAtualizado = agendamentoRepository.save(agendamentoExistente);
 
         return new AgendamentoResponseDTO(agendamentoAtualizado);
+    }
+
+    /**
+     * Lógica para um CLIENTE cancelar seu próprio agendamento.
+     * Contém regras de negócio de prazo.
+     */
+    public void cancelarPeloCliente(String agendamentoId, Usuario clienteLogado) {
+        Agendamento agendamento = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(() -> new AgendamentoException("Agendamento não encontrado."));
+
+        // Validação se o agendamento pertence ao usuário logado
+        if (!agendamento.getUsuarioId().equals(clienteLogado.getId())) {
+            throw new AgendamentoException("Acesso negado. Você só pode cancelar seus próprios agendamentos.");
+        }
+
+        // Validação se agendamento já foi concluído ou cancelado
+        if (agendamento.getStatus() != StatusAgendamento.AGENDADO) {
+            throw new AgendamentoException("Este agendamento não pode mais ser cancelado, pois seu status é '" + agendamento.getStatus() + "'.");
+        }
+
+        // Validação de antecedência de cancelamento
+        var agora = LocalDateTime.now();
+        var horarioAgendamento = agendamento.getHorario();
+        var horasDeAntecedencia = Duration.between(agora, horarioAgendamento).toHours();
+
+        if (horasDeAntecedencia < 1) {
+            throw new CancelamentoForaDoPrazoException("O cancelamento só é permitido com no mínimo 1 hora de antecedência.");
+        }
+
+        agendamento.setStatus(StatusAgendamento.CANCELADO);
+        agendamentoRepository.save(agendamento);
+    }
+
+    /**
+     * Lógica para um BARBEIRO cancelar um agendamento da sua agenda.
+     * Não contém regras de prazo.
+     */
+    public void cancelarPeloBarbeiro(String agendamentoId, Usuario barbeiroLogado) {
+        Agendamento agendamento = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(() -> new AgendamentoException("Agendamento não encontrado."));
+
+        // Validação se o agendamento pertence à agenda do barbeiro logado
+        if (!agendamento.getBarbeiroId().equals(barbeiroLogado.getId())) {
+            throw new AgendamentoException("Acesso negado. Este agendamento não pertence à sua agenda.");
+        }
+
+        // Validação se agendamento já foi concluído ou cancelado
+        if (agendamento.getStatus() != StatusAgendamento.AGENDADO) {
+            throw new AgendamentoException("Este agendamento não pode mais ser cancelado.");
+        }
+
+        agendamento.setStatus(StatusAgendamento.CANCELADO);
+        agendamentoRepository.save(agendamento);
     }
 
 

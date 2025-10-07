@@ -67,4 +67,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         RestErrorMessage errorResponse = new RestErrorMessage(status, mensagem);
         return ResponseEntity.status(status).body(errorResponse);
     }
+
+    @ExceptionHandler(CancelamentoForaDoPrazoException.class)
+    public ResponseEntity<RestErrorMessage> handleCancelamentoForaDoPrazo(CancelamentoForaDoPrazoException exception) {
+        RestErrorMessage mensagemTratada = new RestErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemTratada);
+    }
 }

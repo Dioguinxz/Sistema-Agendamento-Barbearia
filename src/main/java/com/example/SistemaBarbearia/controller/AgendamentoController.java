@@ -54,4 +54,32 @@ public class AgendamentoController {
         return ResponseEntity.ok(agendamentoAtualizado);
     }
 
+    /**
+     * Endpoint para um CLIENTE cancelar seu próprio agendamento.
+     * Semanticamente, a "exclusão" de um agendamento pelo cliente é um cancelamento.
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('CLIENTE')")
+    public ResponseEntity<Void> cancelarAgendamentoPeloCliente(
+            @PathVariable String id,
+            @AuthenticationPrincipal Usuario clienteLogado) {
+
+        agendamentoService.cancelarPeloCliente(id, clienteLogado);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Endpoint para um BARBEIRO cancelar um agendamento de sua agenda.
+     */
+    @PatchMapping("/{id}/cancelar")
+    @PreAuthorize("hasAuthority('BARBEIRO')")
+    public ResponseEntity<Void> cancelarAgendamentoPeloBarbeiro(
+            @PathVariable String id,
+            @AuthenticationPrincipal Usuario barbeiroLogado) {
+
+        agendamentoService.cancelarPeloBarbeiro(id, barbeiroLogado);
+        return ResponseEntity.noContent().build();
+    }
+
 }
