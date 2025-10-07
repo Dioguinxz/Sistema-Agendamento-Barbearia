@@ -115,7 +115,6 @@ public class UsuarioController {
     public ResponseEntity<ApiResponseDTO<UsuarioResponseDTO>> reativarUsuario(@PathVariable String id) {
         UsuarioResponseDTO usuarioReativado = usuarioService.reativarUsuarioPorId(id);
 
-        // O construtor do record é chamado aqui, de forma limpa e direta
         ApiResponseDTO<UsuarioResponseDTO> response = new ApiResponseDTO<>(
                 "Usuário reativado com sucesso!",
                 usuarioReativado
