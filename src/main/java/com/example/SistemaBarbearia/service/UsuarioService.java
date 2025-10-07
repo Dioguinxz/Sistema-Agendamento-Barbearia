@@ -1,9 +1,11 @@
 package com.example.SistemaBarbearia.service;
 
 import com.example.SistemaBarbearia.dto.UsuarioResponseDTO;
+import com.example.SistemaBarbearia.dto.UsuarioUpdateDTO;
 import com.example.SistemaBarbearia.entity.Usuario;
 import com.example.SistemaBarbearia.exceptions.*;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.SistemaBarbearia.repository.AgendamentoRepository;
@@ -20,6 +22,7 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final AgendamentoRepository agendamentoRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Usuario criarUsuario(Usuario novoUsuario) {
         Optional<Usuario> usuarioComEmailExistente = usuarioRepository.findByEmail(novoUsuario.getEmail()); //Optional é responsável por evitar erro de Null Pointer Exception, que ocorre ao tentar usar um objeto que é null
@@ -43,41 +46,79 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
 
-    public Usuario buscarUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioNaoEncontradoEmailException(email));
+
+    public UsuarioResponseDTO buscarUsuarioPorEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsuarioNaoEncontradoEmailException(email));
+        return new UsuarioResponseDTO(usuario);
     }
 
-    public Usuario editarUsuario(String id, Usuario usuarioComNovosDados) {
-        Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoIdException(id));
-
-        if (usuarioComNovosDados.getTipo() != null && !usuarioComNovosDados.getTipo().equals(usuarioExistente.getTipo())) {
-            throw new UsuarioNaoAlteraTipoException();
+    /**
+     * Atualiza o perfil do próprio usuário logado.
+     */
+    public UsuarioResponseDTO atualizarMeuPerfil(UsuarioUpdateDTO dto, Usuario usuarioLogado) {
+        // Validação de telefone duplicado, apenas se um novo telefone for enviado
+        if (dto.getTelefone() != null && !dto.getTelefone().isBlank()) {
+            usuarioRepository.findByTelefone(dto.getTelefone()).ifPresent(usuarioEncontrado -> {
+                if (!usuarioEncontrado.getId().equals(usuarioLogado.getId())) {
+                    throw new UsuarioComTelefoneRegistradoException(dto.getTelefone());
+                }
+            });
+            usuarioLogado.setTelefone(dto.getTelefone());
         }
 
-        if (usuarioComNovosDados.getEmail() != null && !usuarioComNovosDados.getEmail().isBlank() && !usuarioComNovosDados.getEmail().equals(usuarioExistente.getEmail())) {
-            if (usuarioRepository.findByEmail(usuarioComNovosDados.getEmail()).isPresent()) {
-                throw new UsuarioComEmailRegistradoException(usuarioComNovosDados.getEmail());
-            }
-            usuarioExistente.setEmail(usuarioComNovosDados.getEmail());
+        // Atualiza o nome, apenas se um novo nome for enviado
+        if (dto.getNome() != null && !dto.getNome().isBlank()) {
+            usuarioLogado.setNome(dto.getNome());
         }
 
-        if (usuarioComNovosDados.getTelefone() != null && !usuarioComNovosDados.getTelefone().isBlank() && !usuarioComNovosDados.getTelefone().equals(usuarioExistente.getTelefone())) {
-            if (usuarioRepository.findByTelefone(usuarioComNovosDados.getTelefone()).isPresent()) {
-                throw new UsuarioComTelefoneRegistradoException(usuarioComNovosDados.getTelefone());
-            }
+        // Atualiza a senha, apenas se uma nova senha for enviada
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            String novaSenhaCriptografada = passwordEncoder.encode(dto.getSenha());
+            usuarioLogado.setSenha(novaSenhaCriptografada);
         }
 
-        Optional.ofNullable(usuarioComNovosDados.getNome()).ifPresent(usuarioExistente::setNome);
-
-        if (usuarioComNovosDados.getSenha() != null && !usuarioComNovosDados.getSenha().isBlank()) {
-            usuarioExistente.setSenha(usuarioComNovosDados.getSenha());
-        }
-        return usuarioRepository.save(usuarioExistente);
+        Usuario usuarioSalvo = usuarioRepository.save(usuarioLogado);
+        return new UsuarioResponseDTO(usuarioSalvo);
     }
+
+    /**
+     * Atualiza qualquer usuário pelo ID (ação de um Barbeiro).
+     */
+    public UsuarioResponseDTO atualizarUsuarioPeloBarbeiro(String id, UsuarioUpdateDTO dto) {
+        Usuario usuarioParaAtualizar = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoIdException(id));
+
+        // Validação de telefone duplicado, apenas se um novo telefone for enviado
+        if (dto.getTelefone() != null && !dto.getTelefone().isBlank()) {
+            usuarioRepository.findByTelefone(dto.getTelefone()).ifPresent(usuarioEncontrado -> {
+                if (!usuarioEncontrado.getId().equals(id)) {
+                    throw new UsuarioComTelefoneRegistradoException(dto.getTelefone());
+                }
+            });
+            usuarioParaAtualizar.setTelefone(dto.getTelefone());
+        }
+
+        // Atualiza o nome, apenas se um novo nome for enviado
+        if (dto.getNome() != null && !dto.getNome().isBlank()) {
+            usuarioParaAtualizar.setNome(dto.getNome());
+        }
+
+        // Atualiza a senha, apenas se uma nova senha for enviada
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            String novaSenhaCriptografada = passwordEncoder.encode(dto.getSenha());
+            usuarioParaAtualizar.setSenha(novaSenhaCriptografada);
+        }
+
+        Usuario usuarioSalvo = usuarioRepository.save(usuarioParaAtualizar);
+        return new UsuarioResponseDTO(usuarioSalvo);
+    }
+
 
     @Transactional
     public void excluirUsuarioPorEmail(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioNaoEncontradoEmailException(email));
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsuarioNaoEncontradoEmailException(email));
         usuarioRepository.delete(usuario);
     }
 }

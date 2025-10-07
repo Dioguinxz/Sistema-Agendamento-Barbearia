@@ -1,11 +1,14 @@
 package com.example.SistemaBarbearia.controller;
 
 import com.example.SistemaBarbearia.dto.UsuarioResponseDTO;
+import com.example.SistemaBarbearia.dto.UsuarioUpdateDTO;
 import com.example.SistemaBarbearia.entity.Usuario;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.example.SistemaBarbearia.service.UsuarioService;
 
@@ -50,20 +53,34 @@ public class UsuarioController {
      */
     @GetMapping(params = "email")
     @PreAuthorize("hasAuthority('BARBEIRO')")
-    public Usuario buscarUsuarioPorEmail(@RequestParam String email) {
-        return usuarioService.buscarUsuarioPorEmail(email);
+    public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPorEmail(@RequestParam String email) {
+        UsuarioResponseDTO usuario = usuarioService.buscarUsuarioPorEmail(email);
+        return ResponseEntity.ok(usuario);
+    }
+    /**
+     * Endpoint para um usuário (CLIENTE ou BARBEIRO) atualizar SEU PRÓPRIO perfil.
+     */
+    @PutMapping("/me")
+    @PreAuthorize("hasAuthority('CLIENTE')") // Permite que CLIENTE e BARBEIRO atualizem a si mesmos
+    public ResponseEntity<UsuarioResponseDTO> atualizarMeuPerfil(
+            @RequestBody @Valid UsuarioUpdateDTO dto,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+
+        UsuarioResponseDTO usuarioAtualizado = usuarioService.atualizarMeuPerfil(dto, usuarioLogado);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 
     /**
-     * Endpoint para editar um usuário existente.
-     * Mapeado para o verbo HTTP PUT com o ID do usuário na URL.
-     * @param id O ID do usuário a ser editado, vindo do path da URL.
-     * @param usuario O objeto Usuario com os novos dados, vindo do corpo da requisição.
-     * @return O objeto Usuario atualizado e status 200 OK.
+     * Endpoint EXCLUSIVO para o BARBEIRO atualizar QUALQUER usuário pelo ID.
      */
     @PutMapping("/{id}")
-    public Usuario editarUsuario(@PathVariable String id, @RequestBody Usuario usuario) {
-        return usuarioService.editarUsuario(id, usuario);
+    @PreAuthorize("hasAuthority('BARBEIRO')") // Apenas BARBEIROS podem acessar este endpoint
+    public ResponseEntity<UsuarioResponseDTO> atualizarUsuarioPeloBarbeiro(
+            @PathVariable String id,
+            @RequestBody @Valid UsuarioUpdateDTO dto) {
+
+        UsuarioResponseDTO usuarioAtualizado = usuarioService.atualizarUsuarioPeloBarbeiro(id, dto);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 
     /**
