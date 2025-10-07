@@ -40,9 +40,8 @@ public class UsuarioService {
     }
 
     public List<UsuarioResponseDTO> listarTodos() {
-        return usuarioRepository.findAll()
-                .stream()
-                .map(UsuarioResponseDTO::new) // Converte cada Usuario em um UsuarioResponseDTO
+        return usuarioRepository.findAllByAtivoTrue().stream()
+                .map(UsuarioResponseDTO::new)// Converte cada usuário em um UsuarioResponseDTO
                 .collect(Collectors.toList());
     }
 
@@ -86,7 +85,7 @@ public class UsuarioService {
      * Atualiza qualquer usuário pelo ID (ação de um Barbeiro).
      */
     public UsuarioResponseDTO atualizarUsuarioPeloBarbeiro(String id, UsuarioUpdateDTO dto) {
-        Usuario usuarioParaAtualizar = usuarioRepository.findById(id)
+        Usuario usuarioParaAtualizar = usuarioRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoIdException(id));
 
         // Validação de telefone duplicado, apenas se um novo telefone for enviado
@@ -115,10 +114,24 @@ public class UsuarioService {
     }
 
 
-    @Transactional
-    public void excluirUsuarioPorEmail(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new UsuarioNaoEncontradoEmailException(email));
-        usuarioRepository.delete(usuario);
+    // Método para usuário logado desativar própria conta
+    public void desativarMinhaConta(Usuario usuarioLogado) {
+        usuarioLogado.setAtivo(false);
+        usuarioRepository.save(usuarioLogado);
     }
+
+    // Método para barbeiro desativar a conta de qualquer cliente, exceto a própria conta
+    public void desativarUsuarioPorId(String id, Usuario adminLogado) {
+        // Regra para impedir que um admin/barbeiro se delete pela rota errada
+        if (id.equals(adminLogado.getId())) {
+            throw new AgendamentoException("Use a rota /me para desativar sua própria conta.");
+        }
+
+        Usuario usuarioParaDesativar = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoIdException(id));
+
+        usuarioParaDesativar.setAtivo(false);
+        usuarioRepository.save(usuarioParaDesativar);
+    }
+
 }

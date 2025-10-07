@@ -84,15 +84,26 @@ public class UsuarioController {
     }
 
     /**
-     * Endpoint para excluir um usuário por email.
-     * Mapeado para o verbo HTTP DELETE com o email do usuário na URL.
-     * @param email O email do usuário a ser excluído, vindo do path da URL.
-     * @return Resposta sem conteúdo e status 204 No Content.
+     * Endpoint para o usuário logado desativar sua própria conta.
      */
-    @DeleteMapping("/{email}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void excluirUsuarioPorEmail(@PathVariable String email) {
-        usuarioService.excluirUsuarioPorEmail(email);
+    @DeleteMapping("/me")
+    @PreAuthorize("hasAuthority('CLIENTE')")
+    public ResponseEntity<Void> desativarMinhaConta(@AuthenticationPrincipal Usuario usuarioLogado) {
+        usuarioService.desativarMinhaConta(usuarioLogado);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Endpoint para um BARBEIRO desativar a conta de qualquer usuário.
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('BARBEIRO')")
+    public ResponseEntity<Void> desativarUsuario(
+            @PathVariable String id,
+            @AuthenticationPrincipal Usuario adminLogado) {
+
+        usuarioService.desativarUsuarioPorId(id, adminLogado);
+        return ResponseEntity.noContent().build();
     }
 
 }

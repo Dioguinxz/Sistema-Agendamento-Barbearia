@@ -36,7 +36,9 @@ public class Usuario implements UserDetails {
 
     private TipoUsuario tipo;
 
-    public Usuario(String nome, String email, String telefone, String senha, TipoUsuario tipo){
+    private boolean ativo = true;
+
+    public Usuario(String nome, String email, String telefone, String senha, TipoUsuario tipo) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
@@ -44,9 +46,11 @@ public class Usuario implements UserDetails {
         this.tipo = tipo;
     }
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.tipo == TipoUsuario.BARBEIRO) return List.of(new SimpleGrantedAuthority("BARBEIRO"), new SimpleGrantedAuthority("CLIENTE"));
+        if (this.tipo == TipoUsuario.BARBEIRO)
+            return List.of(new SimpleGrantedAuthority("BARBEIRO"), new SimpleGrantedAuthority("CLIENTE"));
         else return List.of(new SimpleGrantedAuthority("CLIENTE"));
     }
 
@@ -77,6 +81,8 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.ativo;
     }
+
+
 }
