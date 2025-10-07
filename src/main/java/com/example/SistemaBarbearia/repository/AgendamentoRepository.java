@@ -12,6 +12,7 @@ public interface AgendamentoRepository extends MongoRepository<Agendamento, Stri
     List<Agendamento> findByUsuarioId(String usuarioId);
     List<Agendamento> findByBarbeiroId(String barbeiroId);
     List<Agendamento> findByBarbeiroIdAndHorarioBetween(String barbeiroId, LocalDateTime start, LocalDateTime end);
+    List<Agendamento> findByUsuarioIdAndHorarioBetween(String usuarioId, LocalDateTime start, LocalDateTime end);
 
 
 }

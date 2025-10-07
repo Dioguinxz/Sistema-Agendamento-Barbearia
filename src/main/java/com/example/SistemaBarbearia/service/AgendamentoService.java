@@ -14,10 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,14 +105,48 @@ public class AgendamentoService {
         };
     }
 
-    public List<AgendamentoResponseDTO> listarMeusAgendamentos(String clienteId) {
-        return agendamentoRepository.findByUsuarioId(clienteId).stream()
+    /**
+     * Lista os agendamentos de um cliente específico.
+     * Se uma data for fornecida, filtra os agendamentos para aquele dia.
+     *
+     * @param clienteId O ID do cliente.
+     * @param data      (Opcional) A data para filtrar.
+     * @return Uma lista de agendamentos do cliente.
+     */
+    public List<AgendamentoResponseDTO> listarMeusAgendamentos(String clienteId, LocalDate data) {
+        // Se nenhuma data for passada, retorna todos os agendamentos do cliente.
+        if (data == null) {
+            return agendamentoRepository.findByUsuarioId(clienteId).stream()
+                    .map(AgendamentoResponseDTO::new)
+                    .collect(Collectors.toList());
+        }
+
+        // Se uma data foi passada, calcula o início e o fim do dia e filtra.
+        LocalDateTime inicioDoDia = data.atStartOfDay();
+        LocalDateTime fimDoDia = data.atTime(LocalTime.MAX);
+
+        return agendamentoRepository.findByUsuarioIdAndHorarioBetween(clienteId, inicioDoDia, fimDoDia).stream()
                 .map(AgendamentoResponseDTO::new)
                 .collect(Collectors.toList());
     }
 
-    public List<AgendamentoResponseDTO> listarTodosAgendamentos() {
-        return agendamentoRepository.findAll().stream()
+    /**
+     * Lista os agendamentos da agenda de um barbeiro específico.
+     * Se uma data for fornecida, filtra para aquele dia. Se não, usa o dia de hoje.
+     *
+     * @param data           (Opcional) A data para filtrar.
+     * @param barbeiroLogado O usuário BARBEIRO autenticado.
+     * @return Uma lista de agendamentos do barbeiro.
+     */
+    public List<AgendamentoResponseDTO> listarTodosAgendamentos(LocalDate data, Usuario barbeiroLogado) {
+        // Define a data do filtro: ou a data fornecida, ou o dia de hoje.
+        LocalDate dataFiltro = (data != null) ? data : LocalDate.now();
+
+        LocalDateTime inicioDoDia = dataFiltro.atStartOfDay();
+        LocalDateTime fimDoDia = dataFiltro.atTime(LocalTime.MAX);
+
+        return agendamentoRepository.findByBarbeiroIdAndHorarioBetween(barbeiroLogado.getId(), inicioDoDia, fimDoDia)
+                .stream()
                 .map(AgendamentoResponseDTO::new)
                 .collect(Collectors.toList());
     }
@@ -136,6 +167,7 @@ public class AgendamentoService {
 
         return new AgendamentoResponseDTO(agendamento);
     }
+
 
     public AgendamentoResponseDTO atualizarAgendamento(String agendamentoId, AgendamentoUpdateDTO dto, Usuario clienteLogado) {
         Agendamento agendamentoExistente = agendamentoRepository.findById(agendamentoId)
