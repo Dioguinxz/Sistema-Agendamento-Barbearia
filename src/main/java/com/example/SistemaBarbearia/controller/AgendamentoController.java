@@ -43,6 +43,25 @@ public class AgendamentoController {
         return ResponseEntity.ok(agendamentos);
     }
 
+    /**
+     * Endpoint para buscar um único agendamento pelo seu ID.
+     * Acessível por Clientes (apenas para seus próprios agendamentos) e Barbeiros.
+     * A lógica de permissão detalhada é tratada na camada de serviço.
+     *
+     * @param id O ID do agendamento a ser buscado.
+     * @param usuarioLogado O usuário autenticado, injetado pelo Spring Security.
+     * @return ResponseEntity com o AgendamentoResponseDTO do agendamento encontrado.
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('CLIENTE')")
+    public ResponseEntity<AgendamentoResponseDTO> buscarAgendamentoPorId(
+            @PathVariable String id,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+
+        AgendamentoResponseDTO agendamento = agendamentoService.buscarPorId(id, usuarioLogado);
+        return ResponseEntity.ok(agendamento);
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('CLIENTE')")
     public ResponseEntity<AgendamentoResponseDTO> atualizarAgendamento(

@@ -120,6 +120,23 @@ public class AgendamentoService {
                 .collect(Collectors.toList());
     }
 
+    public AgendamentoResponseDTO buscarPorId(String agendamentoId, Usuario usuarioLogado) {
+        Agendamento agendamento = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(() -> new AgendamentoException("Agendamento não encontrado com o ID: " + agendamentoId));
+
+        // permissões
+        boolean isClienteDono = agendamento.getUsuarioId().equals(usuarioLogado.getId());
+        boolean isBarbeiroDoAgendamento = agendamento.getBarbeiroId().equals(usuarioLogado.getId());
+        boolean isAdminBarbeiro = usuarioLogado.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("BARBEIRO"));
+
+        if (!isClienteDono && !isBarbeiroDoAgendamento && !isAdminBarbeiro) {
+            throw new AgendamentoException("Acesso negado. Você não tem permissão para visualizar este agendamento.");
+        }
+
+        return new AgendamentoResponseDTO(agendamento);
+    }
+
     public AgendamentoResponseDTO atualizarAgendamento(String agendamentoId, AgendamentoUpdateDTO dto, Usuario clienteLogado) {
         Agendamento agendamentoExistente = agendamentoRepository.findById(agendamentoId)
                 .orElseThrow(() -> new AgendamentoException("Agendamento não encontrado com o ID: " + agendamentoId));
