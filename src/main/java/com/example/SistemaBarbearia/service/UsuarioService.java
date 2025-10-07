@@ -134,4 +134,19 @@ public class UsuarioService {
         usuarioRepository.save(usuarioParaDesativar);
     }
 
+    //Método para barbeiro reativar conta desativada
+    public UsuarioResponseDTO reativarUsuarioPorId(String id) {
+        Usuario usuarioParaReativar = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoIdException(id));
+
+        if (usuarioParaReativar.isAtivo()) {
+            throw new AgendamentoException("Este usuário já está ativo.");
+        }
+
+        usuarioParaReativar.setAtivo(true);
+        Usuario usuarioSalvo = usuarioRepository.save(usuarioParaReativar);
+
+        return new UsuarioResponseDTO(usuarioSalvo);
+    }
+
 }

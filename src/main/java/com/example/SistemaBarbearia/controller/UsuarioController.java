@@ -1,5 +1,6 @@
 package com.example.SistemaBarbearia.controller;
 
+import com.example.SistemaBarbearia.dto.ApiResponseDTO;
 import com.example.SistemaBarbearia.dto.UsuarioResponseDTO;
 import com.example.SistemaBarbearia.dto.UsuarioUpdateDTO;
 import com.example.SistemaBarbearia.entity.Usuario;
@@ -105,5 +106,24 @@ public class UsuarioController {
         usuarioService.desativarUsuarioPorId(id, adminLogado);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Endpoint para um BARBEIRO reativar a conta de um usuário desativado.
+     */
+    @PatchMapping("/{id}/ativar")
+    @PreAuthorize("hasAuthority('BARBEIRO')")
+    public ResponseEntity<ApiResponseDTO<UsuarioResponseDTO>> reativarUsuario(@PathVariable String id) {
+        UsuarioResponseDTO usuarioReativado = usuarioService.reativarUsuarioPorId(id);
+
+        // O construtor do record é chamado aqui, de forma limpa e direta
+        ApiResponseDTO<UsuarioResponseDTO> response = new ApiResponseDTO<>(
+                "Usuário reativado com sucesso!",
+                usuarioReativado
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }
