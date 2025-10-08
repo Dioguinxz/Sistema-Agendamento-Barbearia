@@ -75,7 +75,7 @@ public class UsuarioController {
      * Endpoint EXCLUSIVO para o BARBEIRO atualizar QUALQUER usuário pelo ID.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('BARBEIRO')") // Apenas BARBEIROS podem acessar este endpoint
+    @PreAuthorize("hasAuthority('BARBEIRO')")
     public ResponseEntity<UsuarioResponseDTO> atualizarUsuarioPeloBarbeiro(
             @PathVariable String id,
             @RequestBody @Valid UsuarioUpdateDTO dto) {
