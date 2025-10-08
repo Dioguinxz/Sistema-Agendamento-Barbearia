@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder; // 1. Importe o PasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,9 +37,7 @@ public class AuthController {
     public ResponseEntity login(@RequestBody @Validated AuthenticationDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
-
         var token = tokenService.gerarToken((Usuario) auth.getPrincipal());
-
         return ResponseEntity.ok(new EmailResponseDTO(token));
     }
 

@@ -5,6 +5,8 @@ import com.example.SistemaBarbearia.entity.Usuario;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class EmailService {
 
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
 
     @Value("${app.mail.from}")
@@ -29,6 +32,7 @@ public class EmailService {
      */
     @Async
     public void enviarEmailBoasVindas(Usuario novoUsuario) {
+        logger.info("Iniciando processo de envio de e-mail de boas-vindas para o usuário: {}", novoUsuario.getEmail());
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
@@ -41,18 +45,63 @@ public class EmailService {
             helper.setText(corpoEmail, true);
 
             mailSender.send(mimeMessage);
+            logger.info("E-mail de boas-vindas enviado com sucesso para: {}", novoUsuario.getEmail());
 
-        } catch (MessagingException e) {
-            System.err.println("ERRO AO ENVIAR E-MAIL DE BOAS-VINDAS: " + e.getMessage());
+        } catch (Exception e) {
+            // Usa logger.error para registrar a exceção completa (stack trace)
+            logger.error("Falha ao enviar e-mail de boas-vindas para {}: {}", novoUsuario.getEmail(), e.getMessage(), e);
         }
     }
 
     /**
-     * Monta o corpo HTML do e-mail de boas-vindas para um novo usuário.
+     * Envia um e-mail de confirmação em HTML para o cliente e uma notificação para o barbeiro.
+     * O método é assíncrono, rodando em uma thread separada para não bloquear a resposta da API.
      *
-     * @param usuario O novo usuário.
-     * @return Uma String contendo o HTML completo do e-mail.
+     * @param agendamento   O objeto do agendamento recém-criado.
+     * @param emailCliente  O e-mail do cliente que agendou.
+     * @param emailBarbeiro O e-mail do barbeiro que foi agendado.
      */
+    @Async
+    public void enviarEmailConfirmacaoAgendamento(Agendamento agendamento, String emailCliente, String emailBarbeiro) {
+        logger.info("Iniciando processo de envio de e-mail de confirmação para o agendamento ID: {}", agendamento.getId());
+        try {
+            //Envio para o Cliente
+            logger.debug("Preparando e-mail de confirmação para o cliente: {}", emailCliente);
+            MimeMessage mimeMessageCliente = mailSender.createMimeMessage();
+            MimeMessageHelper helperCliente = new MimeMessageHelper(mimeMessageCliente, "utf-8");
+
+            helperCliente.setFrom(fromEmail);
+            helperCliente.setTo(emailCliente);
+            helperCliente.setSubject("✅ Agendamento Confirmado na Barbearia!");
+
+            String corpoEmailCliente = montarCorpoHtmlConfirmacaoCliente(agendamento);
+            helperCliente.setText(corpoEmailCliente, true);
+
+            mailSender.send(mimeMessageCliente);
+            logger.info("E-mail de confirmação enviado com sucesso para o cliente: {}", emailCliente);
+
+            //Envio para o Barbeiro
+            logger.debug("Preparando e-mail de notificação para o barbeiro: {}", emailBarbeiro);
+            MimeMessage mimeMessageBarbeiro = mailSender.createMimeMessage();
+            MimeMessageHelper helperBarbeiro = new MimeMessageHelper(mimeMessageBarbeiro, "utf-8");
+
+            helperBarbeiro.setFrom(fromEmail);
+            helperBarbeiro.setTo(emailBarbeiro);
+            helperBarbeiro.setSubject("🗓️ Novo Agendamento Recebido!");
+
+            String corpoEmailBarbeiro = montarCorpoHtmlNotificacaoBarbeiro(agendamento);
+            helperBarbeiro.setText(corpoEmailBarbeiro, true);
+
+            mailSender.send(mimeMessageBarbeiro);
+            logger.info("E-mail de notificação enviado com sucesso para o barbeiro: {}", emailBarbeiro);
+
+        } catch (Exception e) {
+            // Registra o erro com detalhes do agendamento para facilitar a depuração
+            logger.error("Falha ao enviar e-mails de confirmação para o agendamento ID {}: {}", agendamento.getId(), e.getMessage(), e);
+        }
+    }
+
+
     private String montarCorpoHtmlBoasVindas(Usuario usuario) {
         return "<!DOCTYPE html>"
                 + "<html>"
@@ -81,48 +130,6 @@ public class EmailService {
                 + "</div>"
                 + "</body>"
                 + "</html>";
-    }
-
-    /**
-     * Envia um e-mail de confirmação em HTML para o cliente e uma notificação para o barbeiro.
-     * O método é assíncrono, rodando em uma thread separada para não bloquear a resposta da API.
-     *
-     * @param agendamento   O objeto do agendamento recém-criado.
-     * @param emailCliente  O e-mail do cliente que agendou.
-     * @param emailBarbeiro O e-mail do barbeiro que foi agendado.
-     */
-    @Async
-    public void enviarEmailConfirmacaoAgendamento(Agendamento agendamento, String emailCliente, String emailBarbeiro) {
-        try {
-            //Envio para o Cliente
-            MimeMessage mimeMessageCliente = mailSender.createMimeMessage();
-            MimeMessageHelper helperCliente = new MimeMessageHelper(mimeMessageCliente, "utf-8");
-
-            helperCliente.setFrom(fromEmail);
-            helperCliente.setTo(emailCliente);
-            helperCliente.setSubject("✅ Agendamento Confirmado na Barbearia!");
-
-            String corpoEmailCliente = montarCorpoHtmlConfirmacaoCliente(agendamento);
-            helperCliente.setText(corpoEmailCliente, true);
-
-            mailSender.send(mimeMessageCliente);
-
-            //Envio para o Barbeiro
-            MimeMessage mimeMessageBarbeiro = mailSender.createMimeMessage();
-            MimeMessageHelper helperBarbeiro = new MimeMessageHelper(mimeMessageBarbeiro, "utf-8");
-
-            helperBarbeiro.setFrom(fromEmail);
-            helperBarbeiro.setTo(emailBarbeiro);
-            helperBarbeiro.setSubject("🗓️ Novo Agendamento Recebido!");
-
-            String corpoEmailBarbeiro = montarCorpoHtmlNotificacaoBarbeiro(agendamento);
-            helperBarbeiro.setText(corpoEmailBarbeiro, true);
-
-            mailSender.send(mimeMessageBarbeiro);
-
-        } catch (MessagingException e) {
-            System.err.println("ERRO AO ENVIAR E-MAIL HTML: " + e.getMessage());
-        }
     }
 
     private String montarCorpoHtmlConfirmacaoCliente(Agendamento agendamento) {
@@ -200,9 +207,4 @@ public class EmailService {
                 + "</body>"
                 + "</html>";
     }
-
-
 }
-
-
-
