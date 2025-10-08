@@ -23,6 +23,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final AgendamentoRepository agendamentoRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public Usuario criarUsuario(Usuario novoUsuario) {
         Optional<Usuario> usuarioComEmailExistente = usuarioRepository.findByEmail(novoUsuario.getEmail()); //Optional é responsável por evitar erro de Null Pointer Exception, que ocorre ao tentar usar um objeto que é null
@@ -36,7 +37,10 @@ public class UsuarioService {
             throw new UsuarioComTelefoneRegistradoException(novoUsuario.getTelefone());
         }
 
-        return usuarioRepository.save(novoUsuario);
+        Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
+        emailService.enviarEmailBoasVindas(usuarioSalvo);
+        return usuarioSalvo;
+
     }
 
     public List<UsuarioResponseDTO> listarTodos() {

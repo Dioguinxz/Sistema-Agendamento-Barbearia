@@ -25,6 +25,7 @@ public class EmailConfig {
 
         mailSender.setPassword(sendgridApiKey);
 
+
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
