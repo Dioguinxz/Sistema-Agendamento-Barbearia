@@ -23,6 +23,67 @@ public class EmailService {
     private String fromEmail;
 
     /**
+     * Envia um e-mail de boas-vindas para um novo usuário.
+     *
+     * @param novoUsuario O objeto do usuário recém-criado.
+     */
+    @Async
+    public void enviarEmailBoasVindas(Usuario novoUsuario) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(novoUsuario.getEmail());
+            helper.setSubject("Bem-vindo à Barbearia!");
+
+            String corpoEmail = montarCorpoHtmlBoasVindas(novoUsuario);
+            helper.setText(corpoEmail, true);
+
+            mailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            System.err.println("ERRO AO ENVIAR E-MAIL DE BOAS-VINDAS: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Monta o corpo HTML do e-mail de boas-vindas para um novo usuário.
+     *
+     * @param usuario O novo usuário.
+     * @return Uma String contendo o HTML completo do e-mail.
+     */
+    private String montarCorpoHtmlBoasVindas(Usuario usuario) {
+        return "<!DOCTYPE html>"
+                + "<html>"
+                + "<head>"
+                + "<style>"
+                + "@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');"
+                + "body { font-family: 'Poppins', sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0; }"
+                + ".container { max-width: 600px; margin: 20px auto; background-color: #1a1a1a; color: #eeeeee; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }"
+                + ".header { background-color: #2c2c2c; padding: 25px 20px; text-align: center; font-size: 24px; font-weight: bold; color: #ffffff; }"
+                + ".content { padding: 30px; text-align: center; }"
+                + ".content p { line-height: 1.6; font-size: 16px; }"
+                + ".cta-button { display: inline-block; background-color: #f4f4f4; color: #1a1a1a; padding: 12px 25px; margin-top: 20px; text-decoration: none; font-weight: bold; border-radius: 5px; }"
+                + ".footer { padding: 20px; text-align: center; font-size: 12px; color: #777; }"
+                + "</style>"
+                + "</head>"
+                + "<body>"
+                + "<div class='container'>"
+                + "<div class='header'>Seja Bem-vindo!</div>"
+                + "<div class='content'>"
+                + "<p>Olá, <strong>" + usuario.getNome() + "</strong>!</p>"
+                + "<p>Sua conta foi criada com sucesso. Estamos felizes em ter você conosco.</p>"
+                + "<p>Seu e-mail de acesso é: <strong>" + usuario.getEmail() + "</strong></p>"
+                + "<a href='#' class='cta-button'>Agendar Meu Horário</a>"
+                + "</div>"
+                + "<div class='footer'>Barbearia</div>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+    }
+
+    /**
      * Envia um e-mail de confirmação em HTML para o cliente e uma notificação para o barbeiro.
      * O método é assíncrono, rodando em uma thread separada para não bloquear a resposta da API.
      *
@@ -140,66 +201,7 @@ public class EmailService {
                 + "</html>";
     }
 
-    /**
-     * Envia um e-mail de boas-vindas para um novo usuário.
-     *
-     * @param novoUsuario O objeto do usuário recém-criado.
-     */
-    @Async
-    public void enviarEmailBoasVindas(Usuario novoUsuario) {
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-            helper.setFrom(fromEmail);
-            helper.setTo(novoUsuario.getEmail());
-            helper.setSubject("Bem-vindo à Barbearia!");
-
-            String corpoEmail = montarCorpoHtmlBoasVindas(novoUsuario);
-            helper.setText(corpoEmail, true);
-
-            mailSender.send(mimeMessage);
-
-        } catch (MessagingException e) {
-            System.err.println("ERRO AO ENVIAR E-MAIL DE BOAS-VINDAS: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Monta o corpo HTML do e-mail de boas-vindas para um novo usuário.
-     *
-     * @param usuario O novo usuário.
-     * @return Uma String contendo o HTML completo do e-mail.
-     */
-    private String montarCorpoHtmlBoasVindas(Usuario usuario) {
-        return "<!DOCTYPE html>"
-                + "<html>"
-                + "<head>"
-                + "<style>"
-                + "@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');"
-                + "body { font-family: 'Poppins', sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0; }"
-                + ".container { max-width: 600px; margin: 20px auto; background-color: #1a1a1a; color: #eeeeee; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }"
-                + ".header { background-color: #2c2c2c; padding: 25px 20px; text-align: center; font-size: 24px; font-weight: bold; color: #ffffff; }"
-                + ".content { padding: 30px; text-align: center; }"
-                + ".content p { line-height: 1.6; font-size: 16px; }"
-                + ".cta-button { display: inline-block; background-color: #c5a47e; color: #1a1a1a; padding: 12px 25px; margin-top: 20px; text-decoration: none; font-weight: bold; border-radius: 5px; }"
-                + ".footer { padding: 20px; text-align: center; font-size: 12px; color: #777; }"
-                + "</style>"
-                + "</head>"
-                + "<body>"
-                + "<div class='container'>"
-                + "<div class='header'>Seja Bem-vindo!</div>"
-                + "<div class='content'>"
-                + "<p>Olá, <strong>" + usuario.getNome() + "</strong>!</p>"
-                + "<p>Sua conta em nosso sistema de agendamento foi criada com sucesso. Estamos felizes em ter você conosco.</p>"
-                + "<p>Seu e-mail de acesso é: <strong>" + usuario.getEmail() + "</strong></p>"
-                + "<a href='#' class='cta-button'>Agendar Meu Horário</a>" // Você pode substituir '#' pelo link do seu frontend
-                + "</div>"
-                + "<div class='footer'>Barbearia Premium - Araranguá, SC</div>"
-                + "</div>"
-                + "</body>"
-                + "</html>";
-    }
 }
 
 

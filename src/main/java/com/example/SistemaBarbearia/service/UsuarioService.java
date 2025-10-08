@@ -38,7 +38,6 @@ public class UsuarioService {
         }
 
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
-        emailService.enviarEmailBoasVindas(usuarioSalvo);
         return usuarioSalvo;
 
     }

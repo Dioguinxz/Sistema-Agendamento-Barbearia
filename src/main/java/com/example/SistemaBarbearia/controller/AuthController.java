@@ -8,6 +8,8 @@ import com.example.SistemaBarbearia.exceptions.UsuarioComEmailRegistradoExceptio
 import com.example.SistemaBarbearia.exceptions.UsuarioComTelefoneRegistradoException;
 import com.example.SistemaBarbearia.repository.UsuarioRepository;
 import com.example.SistemaBarbearia.security.TokenService;
+import com.example.SistemaBarbearia.service.EmailService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,20 +22,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
+    private final EmailService emailService;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private TokenService tokenService;
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Validated AuthenticationDTO data) {
@@ -61,6 +59,7 @@ public class AuthController {
         Usuario novoUsuario = new Usuario(data.nome(), data.email(), data.telefone(), senhaCriptografada, data.tipoUsuario());
 
         this.usuarioRepository.save(novoUsuario);
+        emailService.enviarEmailBoasVindas(novoUsuario);
         return ResponseEntity.ok().build();
     }
 }
