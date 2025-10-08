@@ -24,6 +24,7 @@ public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final EmailService emailService;
 
     public AgendamentoResponseDTO criarAgendamento(AgendamentoRequestDTO dto, Usuario cliente) {
         LocalDateTime horarioAgendamento = dto.horario();
@@ -93,6 +94,7 @@ public class AgendamentoService {
         novoAgendamento.setStatus(StatusAgendamento.AGENDADO);
 
         Agendamento agendamentoSalvo = agendamentoRepository.save(novoAgendamento);
+        emailService.enviarEmailConfirmacaoAgendamento(agendamentoSalvo, cliente.getEmail(), barbeiro.getEmail());
 
         return new AgendamentoResponseDTO(agendamentoSalvo);
     }
