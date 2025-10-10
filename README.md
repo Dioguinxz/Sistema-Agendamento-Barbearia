@@ -44,8 +44,9 @@ A estrutura do projeto é dividida nas seguintes camadas e responsabilidades:
 
 ## Status do Desenvolvimento
 
-- [x] Estrutura do projeto com Spring Boot.
-- [x] CRUD de Usuários e sistema de autenticação/autorização com JWT.
-- [x] Tratamento de exceções global.
-- [ ] **Em Andamento:** Implementação da lógica de Agendamentos.
-- [ ] **Próximos Passos:** Notificações e frontend.
+- [x] Estrutura do projeto com Spring Boot
+- [x] CRUD de Usuários e sistema de autenticação/autorização com JWT
+- [x] Tratamento de exceções global
+- [x] Implementação da lógica de Agendamentos
+- [x] Notificações de boas vindas ao criar conta e confirmação de Agendamento por email
+- [ ] **Em andamaneto:** Frontend
