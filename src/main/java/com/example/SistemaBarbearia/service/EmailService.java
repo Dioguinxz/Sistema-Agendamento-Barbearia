@@ -48,7 +48,6 @@ public class EmailService {
             logger.info("E-mail de boas-vindas enviado com sucesso para: {}", novoUsuario.getEmail());
 
         } catch (Exception e) {
-            // Usa logger.error para registrar a exceção completa (stack trace)
             logger.error("Falha ao enviar e-mail de boas-vindas para {}: {}", novoUsuario.getEmail(), e.getMessage(), e);
         }
     }
