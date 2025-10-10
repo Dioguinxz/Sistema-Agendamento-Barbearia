@@ -60,6 +60,7 @@ public class EmailService {
      * @param emailCliente  O e-mail do cliente que agendou.
      * @param emailBarbeiro O e-mail do barbeiro que foi agendado.
      */
+
     @Async
     public void enviarEmailConfirmacaoAgendamento(Agendamento agendamento, String emailCliente, String emailBarbeiro) {
         logger.info("Iniciando processo de envio de e-mail de confirmação para o agendamento ID: {}", agendamento.getId());
